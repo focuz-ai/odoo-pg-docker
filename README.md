@@ -1,1 +1,11 @@
-docker compose build --no-cache && docker compose up -d --build && docker compose logs -f --tail 2000 postgres
+# Postgres Docker
+
+Crea usuarios para gestionar multiples versiones de Odoo
+
+## Guia Rapida
+
+```bash
+cp .env.example env
+cp docker-compose.override.local.yml docker-compose.override.yml
+docker compose up -d --build
+```
