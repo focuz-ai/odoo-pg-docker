@@ -55,7 +55,7 @@ create_user_odoo() {
     fi
 }
 
-for i in {12..20}; do
+for i in {16..30}; do
     create_user_odoo "$DB_USER"_"$i"
 done
 
