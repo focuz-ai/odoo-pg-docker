@@ -1,6 +1,108 @@
-# Ignores the main configuration file.
+# ============================
+# Environment & Configuration
+# ============================
 .env
-.env-*
-# Ignores the docker compose local or production environment.
+.env.*
+!.env.example
+*.local
+
+# ============================
+# Docker Compose Overrides
+# ============================
 docker-compose.override.yml
 docker-compose-*
+!docker-compose.override.local.yml
+!docker-compose.override.production.yml
+
+# ============================
+# Docker
+# ============================
+# Docker build context
+.docker/
+
+# Docker Compose temporary files
+docker-compose.yml.lock
+
+# ============================
+# Logs
+# ============================
+*.log
+logs/
+*.log.*
+
+# ============================
+# Database Dumps & Backups
+# ============================
+*.sql
+*.dump
+*.backup
+*.bak
+backups/
+dumps/
+
+# ============================
+# Secrets & Credentials
+# ============================
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+secrets/
+credentials/
+
+# ============================
+# IDE & Editors
+# ============================
+# VSCode
+.vscode/
+*.code-workspace
+
+# JetBrains (PyCharm, IntelliJ, etc.)
+.idea/
+*.iml
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# ============================
+# OS Generated Files
+# ============================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# WSL
+*.Identifier
+
+# Linux
+.Trash-*
+
+# ============================
+# Temporary Files
+# ============================
+tmp/
+temp/
+*.tmp
+*.temp
+*.cache
+
+# ============================
+# Claude Code
+# ============================
+.claude/*
+!.claude/agents
