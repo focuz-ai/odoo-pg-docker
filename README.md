@@ -21,8 +21,8 @@ Infraestructura Docker de PostgreSQL optimizada para despliegues de Odoo ERP.
 
 ```bash
 # 1. Clonar el repositorio
-git clone https://github.com/focuz-ai/odoo-pg-docker.git -b 18.0 pg_odoo_18
-cd pg_odoo_18
+git clone https://github.com/focuz-ai/odoo-pg-docker.git -b 19.0 pg_odoo_19
+cd pg_odoo_19
 
 # 2. Configurar variables de entorno
 cp .env.example .env
