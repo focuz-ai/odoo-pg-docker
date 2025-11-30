@@ -1,10 +1,10 @@
 # PostgreSQL Docker para Odoo
 
-Infraestructura Docker de PostgreSQL 17 optimizada para despliegues de Odoo ERP.
+Infraestructura Docker de PostgreSQL optimizada para despliegues de Odoo ERP.
 
 ## Características
 
-- **PostgreSQL 17** con extensión `unaccent` preconfigurada
+- **PostgreSQL** con extensión `unaccent` preconfigurada
 - **Template de base de datos** (`unaccent_template`) para creación rápida de bases de datos Odoo
 - **Soporte multi-idioma** con configuración de locale (por defecto: es_PE)
 - **Optimización de rendimiento** con parámetros PostgreSQL preconfigurados
@@ -21,8 +21,8 @@ Infraestructura Docker de PostgreSQL 17 optimizada para despliegues de Odoo ERP.
 
 ```bash
 # 1. Clonar el repositorio
-git clone https://github.com/focuz-ai/odoo-pg-docker.git -b 17.0 pg_odoo_17
-cd pg_odoo_17
+git clone https://github.com/focuz-ai/odoo-pg-docker.git -b 18.0 pg_odoo_18
+cd pg_odoo_18
 
 # 2. Configurar variables de entorno
 cp .env.example .env
