@@ -31,7 +31,7 @@ cp .env.example .env
 cp docker-compose.override.local.yml docker-compose.override.yml
 
 # 4. Construir y ejecutar
-docker-compose up -d --build postgres
+docker-compose up -d --build
 ```
 
 ## Configuración

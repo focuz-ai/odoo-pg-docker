@@ -1,11 +1,12 @@
 services:
   postgres:
-    build: 
+    build:
       context: ./
       dockerfile: ./postgres/Dockerfile
       args:
         - POSTGRES_TAG=${POSTGRES_TAG}
         - LOAD_LANGUAGE
+        - PGVECTOR_VERSION=${PGVECTOR_VERSION:-0.8.1}
     tty: true
     volumes:
       - pg-data:${PGDATA}
