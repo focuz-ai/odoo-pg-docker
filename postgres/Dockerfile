@@ -45,7 +45,7 @@ RUN cd /tmp && \
 COPY --chown=postgres:postgres ./.env /
 
 # Copy the script to create the unaccent template
-COPY ./postgres/entrypoint.sh /docker-entrypoint-initdb.d/entrypoint.sh
+COPY --chown=postgres:postgres ./postgres/entrypoint.sh /docker-entrypoint-initdb.d/entrypoint.sh
 
 # USER root
 RUN localedef -i ${LOAD_LANGUAGE} -c -f UTF-8 -A /usr/share/locale/locale.alias ${LOAD_LANGUAGE}.UTF-8
