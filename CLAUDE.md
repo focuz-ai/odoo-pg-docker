@@ -4,21 +4,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-pg_docker is a Docker-based PostgreSQL 17 infrastructure specifically designed for Odoo ERP deployments. It provides:
-- Containerized PostgreSQL with the unaccent extension pre-configured
-- Database template (`unaccent_template`) for rapid Odoo database creation
-- Multi-language/locale support (default: es_PE - Spanish Peru)
+pg_odoo_19 is a Docker-based PostgreSQL 17 infrastructure for Odoo 19 ERP deployments. Key features:
+- PostgreSQL with `unaccent` and `pgvector` extensions pre-configured
+- Database template (`unaccent_template`) with extensions for rapid Odoo database creation
+- pgvector 0.8.1 for AI/vector similarity search (required by Odoo 19 ai_app addon)
+- Multi-language/locale support (default: es_PE)
 - Optional PgAdmin integration
-- Multi-user creation for different Odoo versions (odoo_16 to odoo_30)
 
 ## Common Commands
 
 ```bash
-# Build the PostgreSQL image
-docker-compose build postgres
-
-# Start the service
-docker-compose up -d postgres
+# Build and start
+docker-compose up -d --build postgres
 
 # View logs
 docker-compose logs -f postgres
@@ -26,67 +23,66 @@ docker-compose logs -f postgres
 # Stop and remove containers
 docker-compose down
 
-# Rebuild and start (after Dockerfile changes)
-docker-compose up -d --build postgres
-
-# Connect to PostgreSQL from host
-psql -h localhost -p 5454 -U odoo -d <database_name>
+# Connect to PostgreSQL from host (default port 5432, override sets 5454)
+psql -h localhost -p 5432 -U odoo -d postgres
 
 # Execute psql inside container
 docker exec -it <container_name> psql -U postgres
+
+# Create new Odoo database using template
+docker exec -it <container_name> createdb -U odoo -T unaccent_template my_database
+
+# Reset everything (WARNING: deletes all data)
+docker-compose down -v && docker-compose up -d --build postgres
 ```
 
 ## Architecture
 
-```
-pg_docker/
-├── docker-compose.yml              # Main service definition
-├── docker-compose.override.yml     # Default config (ports, resources, tuning)
-├── docker-compose.override.*.yml   # Environment-specific overrides
-├── .env.example                    # Environment template
-├── .env                            # Runtime config (not in git)
-└── postgres/
-    ├── Dockerfile                  # Custom PostgreSQL image
-    └── entrypoint.sh               # Database initialization script
-```
+**Key Files:**
+- `docker-compose.yml` - Base service definition (no ports exposed)
+- `docker-compose.override.yml` - Active config (copy from local or production)
+- `docker-compose.override.local.yml` - Local dev: 1 CPU / 1GB reserved, port 5454
+- `docker-compose.override.production.yml` - Production: 2 CPU / 2GB reserved, port 5454
+- `postgres/Dockerfile` - Custom image with pgvector built from source, locale configured
+- `postgres/entrypoint.sh` - Creates template DB, extensions, and Odoo user
 
-**Initialization Flow:**
-1. Dockerfile builds custom PostgreSQL image with `postgresql-contrib` and locale
-2. On first container start, `entrypoint.sh` runs automatically via Docker's init mechanism
-3. Script creates `unaccent_template` database with the unaccent extension (marked IMMUTABLE)
-4. Creates main Odoo user with SUPERUSER and CREATEDB privileges
-5. Creates versioned users (odoo_16 through odoo_30) for multi-version support
-6. Optionally creates PgAdmin database/user if `USE_PGADMIN=true`
+**Initialization Flow (on first container start):**
+1. Dockerfile builds image with `postgresql-contrib` and pgvector (compiled from source)
+2. `entrypoint.sh` runs via Docker's initdb mechanism
+3. Creates `unaccent_template` database with `unaccent` (IMMUTABLE) and `vector` extensions
+4. Creates Odoo user (`$DB_USER`) with SUPERUSER and CREATEDB privileges
+5. If `USE_PGADMIN=true`, creates PgAdmin database and user
 
 ## Key Environment Variables
+
+See `.env.example` for all variables. Critical ones:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `POSTGRES_TAG` | 17 | PostgreSQL version |
-| `DB_PORT` | 5454 | Exposed port on host |
+| `PGVECTOR_VERSION` | 0.8.1 | pgvector extension version |
+| `DB_PORT` | 5432 | Internal port (override exposes to host) |
 | `DB_USER` | odoo | Odoo database user |
 | `DB_PASSWORD` | odoo | Database password |
-| `DB_TEMPLATE` | unaccent_template | Template database for new DBs |
-| `LOAD_LANGUAGE` | es_PE | System locale |
-| `USE_PGADMIN` | false | Enable PgAdmin user/database creation |
+| `DB_TEMPLATE` | unaccent_template | Template for new Odoo DBs |
+| `LOAD_LANGUAGE` | es_PE | System locale for PostgreSQL |
 
 ## Development Setup
 
 ```bash
-# 1. Create environment file
 cp .env.example .env
-
-# 2. Copy override for local development
 cp docker-compose.override.local.yml docker-compose.override.yml
-
-# 3. Build and start
 docker-compose up -d --build postgres
 ```
 
-## Database Template Pattern
+## Modifying the Image
 
-The `unaccent_template` database is created with the unaccent extension to enable accent-insensitive text searches in Odoo. New databases can be created using:
+When changing `postgres/Dockerfile`:
+- pgvector is compiled from source using `PG_MAJOR` from the base postgres image
+- Build dependencies are removed after compilation to reduce image size
+- The `.env` file is copied into the image for `entrypoint.sh` to source
 
-```sql
-CREATE DATABASE new_db WITH TEMPLATE unaccent_template;
-```
+When changing `postgres/entrypoint.sh`:
+- Script runs as postgres user during container initialization
+- Uses variables from `/.env` (sourced at runtime)
+- Ensure script has execute permissions: `chmod +x postgres/entrypoint.sh`
